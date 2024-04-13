@@ -9,5 +9,23 @@
 
 
  #define macro MAIN() = takes(0) returns(0) {
+    calldatasize // [size]
+    0x00 //[pointer, size]
     
+    for:
+        dup2 dup2 //[pointer,size, pointer, size]
+        gt end jumpi
+        dup1 calldataload //[data, pointer, size]
+        dup2 // [p, data, pointer, size]
+        mstore // [pointer, size]
+        0x20 add // [pointer_, size]
+        for jump
+
+    end:
+        pop
+        0x00
+        sha3
+        0x00 mstore
+
+    0x20 0x00 return
  }
