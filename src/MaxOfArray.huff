@@ -10,5 +10,43 @@
 #define function maxOfArray(uint256[]) payable returns(uint256)
 
 #define macro MAIN() = takes(0) returns(0) {
-   
+   0x00 calldataload 0xe0 shr
+
+   __FUNC_SIG(maxOfArray) eq maxOfArray jumpi
+    0x00 0x00 revert
+   maxOfArray:
+    0x04 calldataload // [head]
+    0x24 calldataload // [size, head]
+    dup1 iszero empty jumpi
+    0x20 mul 0x44 add // [maxOffset, head] 0x20 * size + 0x24 is the start of the pointer of last element,  add 0x20 again is the end of the pointer of it
+    0x00 // [max, maxOffset, head]
+    0x24 // [offset, max, maxOffset, head]
+    // 0x00 0x00 revert
+    for:
+        dup3 dup2 // [offset, maxOffset, offset, max, maxOffset, head]
+        0x20 add // [offset, maxOffset, offset, max, maxOffset, head]
+        eq end jumpi // [offset, max, maxOffset, head]
+        0x20 add
+        dup1 calldataload // [element, offset, max, maxOffset, head]
+        dup1 swap3 // [         max, element, offset, element, maxOffset, head] 
+        dup1      //[max, max, element, offset, element, maxOffset, head]
+        swap4 // [element, max, element, offset, max, maxOffset, head]
+        // 0x1e2aea0600000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000003
+        lt // [e < max, element, offset, max, maxOffset, head]
+        small jumpi
+
+        large:
+            swap2
+            pop
+            for jump
+        small:
+            pop
+            for jump
+        
+
+    empty:
+        0x00 0x00 revert
+    end:
+        swap1 0x00 mstore
+        0x20 0x00 return
 }
