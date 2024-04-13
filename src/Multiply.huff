@@ -13,5 +13,42 @@
 
 
 #define macro MAIN() = takes(0) returns(0) {
+    0x00
+    calldataload
+    0xE0
+    shr
+
+    __FUNC_SIG(multiply) eq multiply jumpi
+    0x00 0x00 revert
+    multiply:
+        0x04
+        calldataload //[v1]
+
+        dup1
+
+        iszero success jumpi
+
+        0x24
+        calldataload //[v2, v1]
+
+        dup1 dup3 //[v1,v2,v2,v1]
+
+        mul // [r1, v2, v1]
+
+        dup1 // [r1, r1, v2, v1]
+        swap3 // [v1, r1, v2, r1]
+        swap1 //[r1, v1, v2, r1]
+
+        div // [div, v2, r1]
+
+        eq success jumpi
+
+        0x00 0x00 revert
+
+        success:
+            0x00 mstore
+
+            0x20 0x00
+            return
 
 }

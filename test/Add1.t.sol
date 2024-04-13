@@ -18,9 +18,11 @@ contract Add1Test is Test, NonMatchingSelectorHelper {
     }
 
     function testAdd1(uint256 n) public {
-        unchecked {
+        // unchecked {
+            emit log_uint(n);
+            vm.expectRevert();
             assertEq(add1.add1(n), n + 1, "Wrong return number");
-        }
+        // }
     }
 
     /// @notice Test that a non-matching selector reverts

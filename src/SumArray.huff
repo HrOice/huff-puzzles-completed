@@ -12,5 +12,36 @@
 
 
 #define macro MAIN() = takes(0) returns(0) {
+    0x00 calldataload 0xe0 shr
+
+    __FUNC_SIG(sumArray) eq sumArray jumpi
+
+    0x00 0x00 revert
+
+    sumArray:
+        0x04 calldataload // [head]
+        0x24 calldataload // [size, head]
+        0x00 0x00 // [index, sum, size, head]
+
+        for:
+            dup1 // [index, index, sum, size, head]
+            swap3 // [size, index, sum, index, head]
+            dup1 swap4 //[index,size, index, sum, size, head]
+            eq end jumpi //[index,sum,size,head]
+            dup1
+            0x20 mul //[skip, index, sum, size, head]
+            0x44 add //[offset, index, sum, size, head]
+            calldataload // [ele, index, sum, size, head]
+            swap1 // [index, ele, sum,...]
+            swap2 // [sum, ele, index,...]
+            add // [sum, index, size, head]
+            swap1 // [index, sum, size, head]
+            0x01 add // [index + 1, sum, size, head]
+
+            for jump  
+        end:
+            pop
+            0x00 mstore
+            0x20 0x00 return
 
 }
