@@ -14,5 +14,53 @@
 
 
  #define macro MAIN() = takes(0) returns(0) {
-   
+   0x00 calldataload 0xe0 shr
+
+   __FUNC_SIG(distribute) eq distribute jumpi 
+    0x00 0x00 revert
+   distribute:
+        0x04 calldataload // [address_head]
+        0x24 calldataload // [address_size, head]
+        dup1 iszero emptyAddress jumpi
+        dup1 callvalue // msg.value
+        div // [value, address_size, head]
+        0x00  // [index, value, address_size, head]
+
+        for:
+            dup3 dup2// [index, size, index, value, size, head]
+            eq end jumpi
+            dup1
+            0x20 mul
+            0x44 add // [offset, index, value, size, head]
+            calldataload // [element, index, value, size, head]
+            // transfer
+            returndatasize returndatasize returndatasize returndatasize // [0,0,0,0, element, index, value, size, head]
+            dup7 // [value, 0,0,0,0, element, index, value, size, head]
+            dup6 // [element, value, 0,0,0,0, element, index, value, size, head]
+            gas
+            call
+            iszero callFailed jumpi
+            pop
+
+            0x01 add
+            for jump
+
+    emptyAddress:
+        0x00 0x00 revert   
+    callFailed: // i don't know why call here while executing the test. This means the opcodes `call` executed failed, but i don't know why.
+        /** the error like these
+            │   │   └─ ← [Stop] 
+    │   ├─ [0] 0x0000000000000000000000000000000000000E43::fallback{value: 51}()
+    │   │   └─ ← [Stop] 
+    │   ├─ [45] HuffConfig::fallback{value: 51}()
+    │   │   └─ ← [Revert] EvmError: Revert
+    │   └─ ← [Revert] custom error 00000000:00000000000000000000000000000000000000000000000000000ac1
+    └─ ← [Revert] custom error 00000000:00000000000000000000000000000000000000000000000000000ac1
+        */
+        selfbalance 0x00 mstore
+        // gas 0x00 mstore
+        0x20 0x00 revert   
+    end:
+
+
  }
