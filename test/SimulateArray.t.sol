@@ -42,6 +42,7 @@ contract SimulateArrayTest is Test, NonMatchingSelectorHelper {
 
         for (uint256 i = array.length; i > 0; --i) {
             simulateArray.popp();
+            simulateArray.length();
             vm.expectRevert(bytes4(keccak256("OutOfBounds()")));
             simulateArray.read(i - 1);
             vm.expectRevert(bytes4(keccak256("OutOfBounds()")));
